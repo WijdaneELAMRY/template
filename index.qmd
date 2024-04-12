@@ -98,7 +98,7 @@ On évalue l'auto corrélation de notre base de donnée grace à la fonction acf
 ![Caption](C:/Users\Dell\OneDrive\Bureau\Devoir5_important_files\3.png)
 On réalise un autre test statonnaire le PACF, et on constate à partir du graphe ci-dessous qu'on a pas de problèmes d'auto-corrélation non plus. 
 
-![Caption](C:\Users\Dell\OneDrive\Bureau\Devoir5_important_files\Prevision.pngg)
+![Caption](C:/Users\Dell\OneDrive\Bureau\Devoir5_important_files\4.png)
 
 Le graphe ci-dessous présente un forecasting des jeux de données qui s'étale sur h=40 , on le réalise à partir du résultat  ARIMA(1,1,1)(2,1,2)[12] qui représente le meilleur model dans notre cas. 
 
