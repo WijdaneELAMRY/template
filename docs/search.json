@@ -16,8 +16,50 @@
   {
     "objectID": "index.html",
     "href": "index.html",
-    "title": "About Me",
+    "title": "Série temporelle et reproductibité",
     "section": "",
-    "text": "Thanks for checking out my web site!"
+    "text": "Ce travail consiste à la réalisation d’une analyse d’une série temporelle avec une reproductibilité du code utilisé."
+  },
+  {
+    "objectID": "index.html#importation-du-jeu-de-donnée",
+    "href": "index.html#importation-du-jeu-de-donnée",
+    "title": "Série temporelle et reproductibité",
+    "section": "Importation du jeu de donnée",
+    "text": "Importation du jeu de donnée\nOn commence par l’importation de notre jeu de donnée en utilisant le module read.csv de la librairie tidyverse. On utilise le code suivant ci-dessous:\nlibrary(tidyverse)\n\nset.seed(197273)\noptions(max.print = 1000000)\nhawai &lt;- read.csv(\"hawai.csv\") # Lecture du jeu de données par read.csv\nhawai\n str(hawai)"
+  },
+  {
+    "objectID": "index.html#conversion-des-dates-du-format-décimal-au-format-année-mois-jours",
+    "href": "index.html#conversion-des-dates-du-format-décimal-au-format-année-mois-jours",
+    "title": "Série temporelle et reproductibité",
+    "section": "Conversion des dates du format décimal au format année-mois-jours",
+    "text": "Conversion des dates du format décimal au format année-mois-jours\nOn constate que la colonne des dates de notre jeu de donnée “hawai” est sur une forme décimale, il est alors important de la convertir sous la forme “année-mois-jour”, en utilisant date_decimal du module lubridate.\nhawai$time&lt;-format(date_decimal(hawai$time), \"%Y-%m-%d\") \nhawai"
+  },
+  {
+    "objectID": "index.html#création-de-la-série-temporelle",
+    "href": "index.html#création-de-la-série-temporelle",
+    "title": "Série temporelle et reproductibité",
+    "section": "Création de la série temporelle",
+    "text": "Création de la série temporelle\nOn crée la série temporelle du CO2 en fonction du temps en faisant appel au module ts, en commencant par la première date et finissant par la dernière date avec une fréquence=12.\npoint_depart &lt;- c(year(min(hawai$time)), month(min(hawai$time)))\nprint(point_depart)\nfrequence &lt;- 12\nhawai_ts &lt;- ts(              # Création de la série temporelle par le module ts. \n  data = hawai$CO2,\n  start = point_depart,\n  frequency = frequence\n)\n\nhawai_ts"
+  },
+  {
+    "objectID": "index.html#séparation-de-la-série-en-partie-test-et-dentrainement",
+    "href": "index.html#séparation-de-la-série-en-partie-test-et-dentrainement",
+    "title": "Série temporelle et reproductibité",
+    "section": "Séparation de la série en partie test et d’entrainement",
+    "text": "Séparation de la série en partie test et d’entrainement\nL’objectif général de la modélisation de séries temporelles est la prévision.Pour vérifier une prévision temporelle, il faut séparer les données en deux séries: une série d’entraînement et une série de test (environ 70% des données). En utilisant la fonction “createDataPartition” du module “caret”.\ninstall.packages(\"caret\")\nlibrary(caret)\n\nset.seed(68017)\n\nid_tr &lt;- createDataPartition(hawai$CO2, p = 0.7, list = FALSE)\nid_tr\nhawai_tr &lt;- hawai [id_tr, ]\nhawai_te &lt;- hawai [-id_tr, ]\nhawai_tr\nhawai_te"
+  },
+  {
+    "objectID": "index.html#model-de-prévision-arima",
+    "href": "index.html#model-de-prévision-arima",
+    "title": "Série temporelle et reproductibité",
+    "section": "Model de prévision ARIMA",
+    "text": "Model de prévision ARIMA\nOn utilise le model ARIMA pour effectuer les prévisions dans le temps de notre base de données en appelant la fonction “forecast”.\ninstall.packages(\"fable\")\nlibrary(fable)\n\ninstall.packages(\"forecast\",dependencies = TRUE)\nlibrary(forecast)\n\ninstall.packages(\"tseries\")\nlibrary(tseries)\n\nplot.ts(hawai_tr$CO2)\nacf(hawai_tr$CO2)\nadf.test(hawai$CO2)\n\nhawaimodel= auto.arima(hawai_ts,ic=\"aic\", trace= TRUE)\nhawaimodel\nacf(ts(hawaimodel$residuals))\nPacf(ts(hawaimodel$residuals))\nhawai_forecast= forecast(hawaimodel, c(95), h=40)\nhawai_forecast\nplot(hawai_forecast)\n\nLe graphe ci-dessous présente la variation du CO2 au fil des années. On remarque une tendance générale d’augmentation, ainsi que des tendances cycliques.\n\n\n\nCaption\n\n\nOn évalue l’auto corrélation de notre base de donnée grace à la fonction acf, on constate à partir du graphique ci-dessous que notre jeu de données est bien corrélée avec lui meme. D’autant plus, elle n’est pas stationnaire.\n On réalise un autre test statonnaire le PACF, et on constate à partir du graphe ci-dessous qu’on a pas de problèmes d’auto-corrélation non plus.\n\n\n\nCaption\n\n\nLe graphe ci-dessous présente un forecasting des jeux de données qui s’étale sur h=40 , on le réalise à partir du résultat ARIMA(1,1,1)(2,1,2)[12] qui représente le meilleur model dans notre cas.\n\n\n\nCaption\n\n\nA partir des résulats de l’analyse d’ARIMA, on constate que c’est un model fiable, la valeur du MASE est proche de 0 , donc c’est un bon model à utiliser."
+  },
+  {
+    "objectID": "index.html#validation-du-modèle-de-prévision-arima",
+    "href": "index.html#validation-du-modèle-de-prévision-arima",
+    "title": "Série temporelle et reproductibité",
+    "section": "Validation du modèle de prévision ARIMA",
+    "text": "Validation du modèle de prévision ARIMA\nOn utilise le box.test pour évaluer le modèle de prévision ARIMA, les résultats nous montre qu’on trouve un pvalue = 0.7104 &gt;0.05, ce qui montre qu’on a pas des problèmes d’auto corrélation dans notre jeu de données.\nBox.test(hawai_forecast$residuals, lag=5)"
   }
 ]

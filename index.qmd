@@ -1,19 +1,117 @@
 ---
-title: "About Me"
-about:
-  id: me
-  template: broadside
-  image: img/profile.png
+title: "Série temporelle et reproductibité"
 ---
+Ce travail consiste à la réalisation d'une analyse d'une série temporelle avec une reproductibilité du code utilisé. 
 
-:::{#me}
+## Importation du jeu de donnée
 
-## Goals
+On commence par l'importation de notre jeu de donnée en utilisant le module read.csv de la librairie tidyverse.
+On utilise le code suivant ci-dessous:
+```
+library(tidyverse)
 
-## Education
+set.seed(197273)
+options(max.print = 1000000)
+hawai <- read.csv("hawai.csv") # Lecture du jeu de données par read.csv
+hawai
+ str(hawai)
+ 
+```
+## Conversion des dates du format décimal au format année-mois-jours
 
-## Experience
+On constate que la colonne des dates de notre jeu de donnée "hawai" est sur une forme décimale, il est alors important de la convertir sous la forme "année-mois-jour", en utilisant date_decimal du module lubridate. 
+```
+hawai$time<-format(date_decimal(hawai$time), "%Y-%m-%d") 
+hawai
+```
 
-:::
+## Création de la série temporelle
 
-Thanks for checking out my web site!
+On crée la série temporelle du CO2 en fonction du temps en faisant appel au module ts, en commencant par la première date et finissant par la dernière date avec une fréquence=12. 
+
+```
+point_depart <- c(year(min(hawai$time)), month(min(hawai$time)))
+print(point_depart)
+frequence <- 12
+hawai_ts <- ts(              # Création de la série temporelle par le module ts. 
+  data = hawai$CO2,
+  start = point_depart,
+  frequency = frequence
+)
+
+hawai_ts
+
+```
+## Séparation de la série en partie test et d'entrainement
+
+L’objectif général de la modélisation de séries temporelles est la prévision.Pour vérifier une prévision temporelle, il faut séparer les données en deux séries: une série d’entraînement et une série de test (environ 70% des données). En utilisant la fonction "createDataPartition" du module "caret".
+
+```
+install.packages("caret")
+library(caret)
+
+set.seed(68017)
+
+id_tr <- createDataPartition(hawai$CO2, p = 0.7, list = FALSE)
+id_tr
+hawai_tr <- hawai [id_tr, ]
+hawai_te <- hawai [-id_tr, ]
+hawai_tr
+hawai_te
+
+```
+## Model de prévision ARIMA
+
+On utilise le model ARIMA pour effectuer les prévisions dans le temps de notre base de données en appelant la fonction "forecast".
+
+```
+install.packages("fable")
+library(fable)
+
+install.packages("forecast",dependencies = TRUE)
+library(forecast)
+
+install.packages("tseries")
+library(tseries)
+
+plot.ts(hawai_tr$CO2)
+acf(hawai_tr$CO2)
+adf.test(hawai$CO2)
+
+hawaimodel= auto.arima(hawai_ts,ic="aic", trace= TRUE)
+hawaimodel
+acf(ts(hawaimodel$residuals))
+Pacf(ts(hawaimodel$residuals))
+hawai_forecast= forecast(hawaimodel, c(95), h=40)
+hawai_forecast
+plot(hawai_forecast)
+
+```
+Le graphe ci-dessous présente la variation du CO2 au fil des années. 
+On remarque une tendance générale d’augmentation, ainsi que des tendances cycliques.
+
+![Caption](C:/Users/Dell/OneDrive/Bureau/Devoir5_important_files/1.PNG)
+
+On évalue l'auto corrélation de notre base de donnée grace à la fonction acf, on constate à partir du graphique ci-dessous que notre jeu de données est bien corrélée avec lui meme. D'autant plus, elle n'est pas stationnaire. 
+
+
+![Caption](C:/Users\Dell\OneDrive\Bureau\Devoir5_important_files\3.png)
+On réalise un autre test statonnaire le PACF, et on constate à partir du graphe ci-dessous qu'on a pas de problèmes d'auto-corrélation non plus. 
+
+![Caption](C:\Users\Dell\OneDrive\Bureau\Devoir5_important_files\Prevision.pngg)
+
+Le graphe ci-dessous présente un forecasting des jeux de données qui s'étale sur h=40 , on le réalise à partir du résultat  ARIMA(1,1,1)(2,1,2)[12] qui représente le meilleur model dans notre cas. 
+
+![Caption](C:/Users\Dell\OneDrive\Bureau\Devoir5_important_files\Prevision.png)
+
+
+A partir des résulats de l'analyse d'ARIMA, on constate que c'est un model fiable, la valeur du MASE est proche de 0 , donc c'est un bon model à utiliser.
+
+## Validation du modèle de prévision ARIMA
+
+On utilise le box.test pour évaluer le modèle de prévision ARIMA, les résultats nous montre qu'on trouve un pvalue = 0.7104 >0.05, ce qui montre qu'on a pas des problèmes d'auto corrélation dans notre jeu de données. 
+
+```
+Box.test(hawai_forecast$residuals, lag=5)
+```
+

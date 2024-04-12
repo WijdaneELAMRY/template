@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Devoir 5 - About Me</title>
+<title>Devoir 5 - Série temporelle et reproductibité</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -33,6 +33,7 @@ ul.task-list li input[type="checkbox"] {
 <script src="site_libs/quarto-html/quarto.js"></script>
 <script src="site_libs/quarto-html/popper.min.js"></script>
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
 <link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
 <link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
@@ -69,7 +70,7 @@ ul.task-list li input[type="checkbox"] {
 
 </head>
 
-<body class="nav-fixed fullcontent">
+<body class="nav-fixed">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
@@ -107,40 +108,147 @@ ul.task-list li input[type="checkbox"] {
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
-    
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#importation-du-jeu-de-donnée" id="toc-importation-du-jeu-de-donnée" class="nav-link active" data-scroll-target="#importation-du-jeu-de-donnée">Importation du jeu de donnée</a></li>
+  <li><a href="#conversion-des-dates-du-format-décimal-au-format-année-mois-jours" id="toc-conversion-des-dates-du-format-décimal-au-format-année-mois-jours" class="nav-link" data-scroll-target="#conversion-des-dates-du-format-décimal-au-format-année-mois-jours">Conversion des dates du format décimal au format année-mois-jours</a></li>
+  <li><a href="#création-de-la-série-temporelle" id="toc-création-de-la-série-temporelle" class="nav-link" data-scroll-target="#création-de-la-série-temporelle">Création de la série temporelle</a></li>
+  <li><a href="#séparation-de-la-série-en-partie-test-et-dentrainement" id="toc-séparation-de-la-série-en-partie-test-et-dentrainement" class="nav-link" data-scroll-target="#séparation-de-la-série-en-partie-test-et-dentrainement">Séparation de la série en partie test et d’entrainement</a></li>
+  <li><a href="#model-de-prévision-arima" id="toc-model-de-prévision-arima" class="nav-link" data-scroll-target="#model-de-prévision-arima">Model de prévision ARIMA</a></li>
+  <li><a href="#validation-du-modèle-de-prévision-arima" id="toc-validation-du-modèle-de-prévision-arima" class="nav-link" data-scroll-target="#validation-du-modèle-de-prévision-arima">Validation du modèle de prévision ARIMA</a></li>
+  </ul>
+</nav>
+    </div>
 <!-- main -->
-<main class="content page-columns page-full" id="quarto-document-content">
+<main class="content" id="quarto-document-content">
 
-
-
-
-<div class="quarto-about-broadside column-page content">
-  <div class="about-main">
-    <div class="about-entity" style="background-image: url('img/profile.png')"></div>
-    <div class="about-contents"><header id="title-block-header" class="quarto-title-block default">
+<header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">About Me</h1>
+<h1 class="title">Série temporelle et reproductibité</h1>
 </div>
+
+
+
 <div class="quarto-title-meta">
+
+    
+  
+    
   </div>
-</header><div id="me">
-<section id="goals" class="level2">
-<h2 data-anchor-id="goals">Goals</h2>
+  
+
+
+</header>
+
+
+<p>Ce travail consiste à la réalisation d’une analyse d’une série temporelle avec une reproductibilité du code utilisé.</p>
+<section id="importation-du-jeu-de-donnée" class="level2">
+<h2 class="anchored" data-anchor-id="importation-du-jeu-de-donnée">Importation du jeu de donnée</h2>
+<p>On commence par l’importation de notre jeu de donnée en utilisant le module read.csv de la librairie tidyverse. On utilise le code suivant ci-dessous:</p>
+<pre><code>library(tidyverse)
+
+set.seed(197273)
+options(max.print = 1000000)
+hawai &lt;- read.csv("hawai.csv") # Lecture du jeu de données par read.csv
+hawai
+ str(hawai)
+ </code></pre>
 </section>
-<section id="education" class="level2">
-<h2 data-anchor-id="education">Education</h2>
+<section id="conversion-des-dates-du-format-décimal-au-format-année-mois-jours" class="level2">
+<h2 class="anchored" data-anchor-id="conversion-des-dates-du-format-décimal-au-format-année-mois-jours">Conversion des dates du format décimal au format année-mois-jours</h2>
+<p>On constate que la colonne des dates de notre jeu de donnée “hawai” est sur une forme décimale, il est alors important de la convertir sous la forme “année-mois-jour”, en utilisant date_decimal du module lubridate.</p>
+<pre><code>hawai$time&lt;-format(date_decimal(hawai$time), "%Y-%m-%d") 
+hawai</code></pre>
 </section>
-<section id="experience" class="level2">
-<h2 data-anchor-id="experience">Experience</h2>
+<section id="création-de-la-série-temporelle" class="level2">
+<h2 class="anchored" data-anchor-id="création-de-la-série-temporelle">Création de la série temporelle</h2>
+<p>On crée la série temporelle du CO2 en fonction du temps en faisant appel au module ts, en commencant par la première date et finissant par la dernière date avec une fréquence=12.</p>
+<pre><code>point_depart &lt;- c(year(min(hawai$time)), month(min(hawai$time)))
+print(point_depart)
+frequence &lt;- 12
+hawai_ts &lt;- ts(              # Création de la série temporelle par le module ts. 
+  data = hawai$CO2,
+  start = point_depart,
+  frequency = frequence
+)
+
+hawai_ts
+</code></pre>
 </section>
-</div></div>
-  </div>
+<section id="séparation-de-la-série-en-partie-test-et-dentrainement" class="level2">
+<h2 class="anchored" data-anchor-id="séparation-de-la-série-en-partie-test-et-dentrainement">Séparation de la série en partie test et d’entrainement</h2>
+<p>L’objectif général de la modélisation de séries temporelles est la prévision.Pour vérifier une prévision temporelle, il faut séparer les données en deux séries: une série d’entraînement et une série de test (environ 70% des données). En utilisant la fonction “createDataPartition” du module “caret”.</p>
+<pre><code>install.packages("caret")
+library(caret)
+
+set.seed(68017)
+
+id_tr &lt;- createDataPartition(hawai$CO2, p = 0.7, list = FALSE)
+id_tr
+hawai_tr &lt;- hawai [id_tr, ]
+hawai_te &lt;- hawai [-id_tr, ]
+hawai_tr
+hawai_te
+</code></pre>
+</section>
+<section id="model-de-prévision-arima" class="level2">
+<h2 class="anchored" data-anchor-id="model-de-prévision-arima">Model de prévision ARIMA</h2>
+<p>On utilise le model ARIMA pour effectuer les prévisions dans le temps de notre base de données en appelant la fonction “forecast”.</p>
+<pre><code>install.packages("fable")
+library(fable)
+
+install.packages("forecast",dependencies = TRUE)
+library(forecast)
+
+install.packages("tseries")
+library(tseries)
+
+plot.ts(hawai_tr$CO2)
+acf(hawai_tr$CO2)
+adf.test(hawai$CO2)
+
+hawaimodel= auto.arima(hawai_ts,ic="aic", trace= TRUE)
+hawaimodel
+acf(ts(hawaimodel$residuals))
+Pacf(ts(hawaimodel$residuals))
+hawai_forecast= forecast(hawaimodel, c(95), h=40)
+hawai_forecast
+plot(hawai_forecast)
+</code></pre>
+<p>Le graphe ci-dessous présente la variation du CO2 au fil des années. On remarque une tendance générale d’augmentation, ainsi que des tendances cycliques.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="C:/Users/Dell/OneDrive/Bureau/Devoir5_important_files/1.PNG" class="img-fluid figure-img"></p>
+<figcaption>Caption</figcaption>
+</figure>
 </div>
+<p>On évalue l’auto corrélation de notre base de donnée grace à la fonction acf, on constate à partir du graphique ci-dessous que notre jeu de données est bien corrélée avec lui meme. D’autant plus, elle n’est pas stationnaire.</p>
+<p><img src="C:/Users\Dell\OneDrive\Bureau\Devoir5_important_files\3.png" class="img-fluid" alt="Caption"> On réalise un autre test statonnaire le PACF, et on constate à partir du graphe ci-dessous qu’on a pas de problèmes d’auto-corrélation non plus.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="C:\Users\Dell\OneDrive\Bureau\Devoir5_important_files\Prevision.pngg" class="img-fluid figure-img"></p>
+<figcaption>Caption</figcaption>
+</figure>
+</div>
+<p>Le graphe ci-dessous présente un forecasting des jeux de données qui s’étale sur h=40 , on le réalise à partir du résultat ARIMA(1,1,1)(2,1,2)[12] qui représente le meilleur model dans notre cas.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="C:/Users\Dell\OneDrive\Bureau\Devoir5_important_files\Prevision.png" class="img-fluid figure-img"></p>
+<figcaption>Caption</figcaption>
+</figure>
+</div>
+<p>A partir des résulats de l’analyse d’ARIMA, on constate que c’est un model fiable, la valeur du MASE est proche de 0 , donc c’est un bon model à utiliser.</p>
+</section>
+<section id="validation-du-modèle-de-prévision-arima" class="level2">
+<h2 class="anchored" data-anchor-id="validation-du-modèle-de-prévision-arima">Validation du modèle de prévision ARIMA</h2>
+<p>On utilise le box.test pour évaluer le modèle de prévision ARIMA, les résultats nous montre qu’on trouve un pvalue = 0.7104 &gt;0.05, ce qui montre qu’on a pas des problèmes d’auto corrélation dans notre jeu de données.</p>
+<pre><code>Box.test(hawai_forecast$residuals, lag=5)</code></pre>
 
-<p>Thanks for checking out my web site!</p>
 
-
-
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
@@ -163,6 +271,13 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     }
   }
   toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
   const isCodeAnnotation = (el) => {
     for (const clz of el.classList) {
       if (clz.startsWith('code-annotation-')) {                     
