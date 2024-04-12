@@ -90,19 +90,19 @@ plot(hawai_forecast)
 Le graphe ci-dessous présente la variation du CO2 au fil des années. 
 On remarque une tendance générale d’augmentation, ainsi que des tendances cycliques.
 
-![Caption](C:/Users/Dell/OneDrive/Bureau/Devoir5_important_files/1.PNG)
+![Caption](C:/Users\Dell\OneDrive\Bureau\CO2.png)
 
 On évalue l'auto corrélation de notre base de donnée grace à la fonction acf, on constate à partir du graphique ci-dessous que notre jeu de données est bien corrélée avec lui meme. D'autant plus, elle n'est pas stationnaire. 
 
 
-![Caption](C:/Users\Dell\OneDrive\Bureau\Devoir5_important_files\3.png)
+![Caption](C:/Users\Dell\OneDrive\Bureau\acf.png)
 On réalise un autre test statonnaire le PACF, et on constate à partir du graphe ci-dessous qu'on a pas de problèmes d'auto-corrélation non plus. 
 
-![Caption](C:/Users\Dell\OneDrive\Bureau\Devoir5_important_files\4.png)
+![Caption](C:/Users\Dell\OneDrive\Bureau\4.png)
 
 Le graphe ci-dessous présente un forecasting des jeux de données qui s'étale sur h=40 , on le réalise à partir du résultat  ARIMA(1,1,1)(2,1,2)[12] qui représente le meilleur model dans notre cas. 
 
-![Caption](C:/Users\Dell\OneDrive\Bureau\Devoir5_important_files\Prevision.png)
+![Caption](C:/Users\Dell\OneDrive\Bureau\Prevision.png)
 
 
 A partir des résulats de l'analyse d'ARIMA, on constate que c'est un model fiable, la valeur du MASE est proche de 0 , donc c'est un bon model à utiliser.
